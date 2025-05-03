@@ -3,10 +3,16 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
+
+const allowedOrigins = [
+  "https://polite-sand-0dd94df1e.6.azurestaticapps.net", // your frontend static URL
+];
+
 app.use(cors({
-    origin: 'https://polite-sand-0dd94df1e.6.azurestaticapps.net',
-    credentials: true // optional, only needed if using cookies or auth headers
-  }));
+  origin: allowedOrigins,
+  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+  credentials: true // if you're using cookies/auth headers
+}));
   
 app.use(express.json());
 
