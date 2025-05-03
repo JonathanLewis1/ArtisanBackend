@@ -3,7 +3,11 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: 'https://polite-sand-0dd94df1e.6.azurestaticapps.net',
+    credentials: true // optional, only needed if using cookies or auth headers
+  }));
+  
 app.use(express.json());
 
 // Optional root route for quick sanity check
