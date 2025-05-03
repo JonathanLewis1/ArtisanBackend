@@ -1,0 +1,30 @@
+// controllers/headerController.js
+const { db, auth } = require("../firebase/admin");
+
+exports.getUserRole = async (req, res) => {
+  try {
+    const { uid } = req.query;
+    if (!uid) return res.status(400).json({ message: "UID is required" });
+
+    const userDoc = await db.collection("users").doc(uid).get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ role: userDoc.data().role });
+  } catch (error) {
+    console.error("Error getting user role:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.logoutUser = async (req, res) => {
+  try {
+    // Firebase Admin SDK does not support client-side token revocation directly,
+    // so just acknowledge logout request.
+    res.status(200).json({ message: "Logout acknowledged" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ message: "Failed to logout" });
+  }
+};

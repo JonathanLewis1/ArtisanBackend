@@ -1,0 +1,9 @@
+// routes/bheader.js
+const express = require("express");
+const router = express.Router();
+const HeaderController = require("../controllers/headerController");
+
+router.get("/role", HeaderController.getUserRole);
+router.post("/logout", HeaderController.logoutUser);
+
+module.exports = router;

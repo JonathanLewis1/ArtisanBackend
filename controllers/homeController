@@ -1,0 +1,34 @@
+// controllers/HomeController.js
+const { db } = require("../firebase/admin");
+
+exports.getAllProducts = async (req, res) => {
+  try {
+    const { category, search, minPrice, maxPrice } = req.query;
+    let query = db.collection("products");
+
+    if (category) query = query.where("category", "==", category);
+    const snapshot = await query.get();
+
+    let products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    if (search) products = products.filter(p => p.name?.toLowerCase().includes(search.toLowerCase()));
+    if (minPrice) products = products.filter(p => p.price >= parseFloat(minPrice));
+    if (maxPrice) products = products.filter(p => p.price <= parseFloat(maxPrice));
+
+    res.status(200).json(products);
+  } catch (err) {
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+exports.getProductById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const doc = await db.collection("products").doc(id).get();
+    if (!doc.exists) return res.status(404).json({ message: "Product not found" });
+
+    res.status(200).json({ id: doc.id, ...doc.data() });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch product details" });
+  }
+};
