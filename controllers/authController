@@ -34,41 +34,30 @@ const firebaseConfig = {
 // };
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-  console.log("🔐 Login attempt for:", email);
   try {
+    console.log("📥 Login attempt for:", email); // <--- Add this
     const clientApp = firebaseClient.initializeApp(firebaseConfig, `login-${Date.now()}`);
     const clientAuth = getClientAuth(clientApp);
-
     const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
     const user = userCredential.user;
-    console.log("✅ Firebase auth successful");
 
-    if (!user.emailVerified) {
-      console.log("❌ Email not verified");
-      return res.status(401).json({ message: "Email not verified" });
-    }
+    if (!user.emailVerified) return res.status(401).json({ message: "Email not verified" });
 
     const idToken = await user.getIdToken();
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const uid = decodedToken.uid;
-    console.log("🔍 Decoded UID:", uid);
-
     const docSnap = await db.collection("users").doc(uid).get();
-    if (!docSnap.exists) {
-      console.log("❌ Firestore user doc not found for UID:", uid);
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!docSnap.exists) return res.status(404).json({ message: "User not found" });
 
     const { role } = docSnap.data();
-    console.log("✅ Firestore user found:", { uid, role });
     return res.status(200).json({ idToken, uid, email: user.email, role });
 
   } catch (err) {
-    console.error("❌ Login failed:", err.message);
-    if (err.code) console.error("🔥 Firebase error code:", err.code);
+    console.error("❌ Login failed:", err); // <--- Already present, make sure it's logging full error
     return res.status(401).json({ message: "Invalid email or password" });
   }
 };
+
 
 
 exports.signup = async (req, res) => {
