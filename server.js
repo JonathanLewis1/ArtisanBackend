@@ -124,6 +124,7 @@
 //   } catch (startupError) {
 //     console.error("❌ Fatal error during server startup:", startupError);
 //   }
+console.log("🟢 MAIN FILE EXECUTED!");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
