@@ -3,13 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-
-app.use(cors({
-    origin: "https://polite-sand-0dd94df1e.6.azurestaticapps.net",
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-    credentials: true
-  }));
-
+app.use(cors());
 app.use(express.json());
 
 // Optional root route for quick sanity check
@@ -32,4 +26,4 @@ app.use('/api/header', headerRoutes);
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port: ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
