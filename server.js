@@ -4,16 +4,24 @@ require("dotenv").config();
 
 const app = express();
 
+// CORS config for deployed frontend only
 const allowedOrigins = [
-  "https://polite-sand-0dd94df1e.6.azurestaticapps.net", // your frontend static URL
+  "https://polite-sand-0dd94df1e.6.azurestaticapps.net"
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-  credentials: true // if you're using cookies/auth headers
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
+  credentials: true
 }));
   
+
 app.use(express.json());
 
 // Optional root route for quick sanity check
