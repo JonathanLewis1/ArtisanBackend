@@ -1,13 +1,17 @@
 const express = require("express");
-const cors = require("cors");
 require("dotenv").config();
+const cors = require("cors");
+
 
 const app = express();
+
 app.use(cors({
-    origin: "https://polite-sand-0dd94df1e.6.azurestaticapps.net",
-    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: true // include it to support Firebase tokens, just in case
+  origin: "https://polite-sand-0dd94df1e.6.azurestaticapps.net",
+  credentials: true,
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
   
 app.use(express.json());
 
