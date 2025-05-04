@@ -164,6 +164,8 @@ app.get("/", (req, res) => {
 // ROUTE IMPORTS
 try {
   const authRoutes = require("./routes/auth");
+  console.log("✅ Auth routes loaded:", typeof authRoutes === "function");
+
   const sellerRoutes = require("./routes/bseller");
   const homeRoutes = require("./routes/bhome");
   const headerRoutes = require("./routes/bheader");
