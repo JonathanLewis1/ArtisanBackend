@@ -125,9 +125,12 @@
 //     console.error("❌ Fatal error during server startup:", startupError);
 //   }
 console.log("🟢 MAIN FILE EXECUTED!");
+
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
+
+const app = express();
 
 // Firebase Admin Init
 try {
@@ -137,11 +140,9 @@ try {
   console.error("❌ Firebase Admin init failed:", firebaseError);
 }
 
-const app = express();
-
 // CORS Configuration
 app.use(cors({
-  origin: "https://polite-sand-0dd94df1e.6.azurestaticapps.net", // Your frontend URL
+  origin: "https://polite-sand-0dd94df1e.6.azurestaticapps.net",
   credentials: true,
   methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
@@ -162,23 +163,30 @@ app.get("/", (req, res) => {
   res.send("API is running");
 });
 
+// Direct debug route (bypasses router system)
+app.get("/debug-direct", (req, res) => {
+  console.log("🔍 Debug route hit directly");
+  res.json({ message: "✅ Direct debug route works" });
+});
+
 // ROUTE IMPORTS
 try {
   const authRoutes = require("./routes/auth");
-  console.log("✅ Auth routes loaded:", typeof authRoutes === "function");
+  console.log("✅ Auth routes loaded:", typeof authRoutes);
+  app.use("/api/auth", authRoutes);
 
   const sellerRoutes = require("./routes/bseller");
-  const homeRoutes = require("./routes/bhome");
-  const headerRoutes = require("./routes/bheader");
-
-  app.use("/api/auth", authRoutes);
   app.use("/api/seller", sellerRoutes);
+
+  const homeRoutes = require("./routes/bhome");
   app.use("/api/home", homeRoutes);
+
+  const headerRoutes = require("./routes/bheader");
   app.use("/api/header", headerRoutes);
 
   console.log("✅ All routes mounted");
 } catch (err) {
-  console.error("❌ Failed to load routes:", err);
+  console.error("❌ Failed to load routes:", err.stack);
 }
 
 // 404 Fallback
@@ -192,5 +200,3 @@ const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
-
-  
