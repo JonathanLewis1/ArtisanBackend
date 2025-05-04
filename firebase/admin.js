@@ -17,19 +17,18 @@ const admin = require("firebase-admin");
 
 try {
   const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
-
   admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://sd2025law.firebaseio.com"
+    databaseURL: "https://sd2025law.firebaseio.com",
   });
-
-  console.log("✅ Firebase Admin SDK initialized");
+  console.log("✅ Firebase Admin setup completed");
 } catch (error) {
-  console.error("🔥 Firebase Admin SDK init error:", error);
+  console.error("❌ Firebase Admin setup failed", error);
 }
 
 const db = admin.firestore();
 const auth = admin.auth();
 
 module.exports = { admin, db, auth };
+
 
