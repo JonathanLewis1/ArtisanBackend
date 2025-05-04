@@ -124,72 +124,70 @@
 //   } catch (startupError) {
 //     console.error("❌ Fatal error during server startup:", startupError);
 //   }
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+
+// Firebase Admin Init
 try {
-    const express = require("express");
-    require("dotenv").config();
-    const cors = require("cors");
-  
-    console.log("🔧 Starting app...");
-  
-    // Firebase Admin Init
-    try {
-      require("./firebase/admin");
-      console.log("✅ Firebase Admin initialized");
-    } catch (firebaseError) {
-      console.error("❌ Firebase Admin init failed:", firebaseError);
-    }
-  
-    const app = express();
-  
-    app.use(cors({
-      origin: "https://polite-sand-0dd94df1e.6.azurestaticapps.net",
-      credentials: true,
-      methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"]
-    }));
-  
-    app.use(express.json());
-  
-    app.get("/", (req, res) => {
-      console.log("✅ Root route hit");
-      res.send("API is running");
-    });
-  
-    app.get("/health", (req, res) => {
-      console.log("✅ Health check route hit");
-      res.status(200).send("OK");
-    });
-  
-    try {
-      console.log("🧩 Mounting routes...");
-      const authRoutes = require("./routes/auth");
-      app.use("/api/auth", authRoutes);
-      console.log("✅ /api/auth routes mounted");
-  
-      const homeRoutes = require("./routes/bhome");
-      app.use("/api/home", homeRoutes);
-  
-      const sellerRoutes = require("./routes/bseller");
-      app.use("/api/seller", sellerRoutes);
-  
-      const headerRoutes = require("./routes/bheader");
-      app.use("/api/header", headerRoutes);
-  
-      // Confirm mounted endpoints
-      app._router.stack
-        .filter(r => r.route)
-        .forEach(r => console.log("📣 Registered route:", r.route.path));
-  
-    } catch (routeError) {
-      console.error("❌ Route setup failed:", routeError);
-    }
-  
-    const PORT = process.env.PORT || 8080;
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-    });
-  
-  } catch (startupError) {
-    console.error("❌ Fatal error during server startup:", startupError);
-  }
+  const { admin } = require("./firebase/admin");
+  console.log("✅ Firebase Admin initialized");
+} catch (firebaseError) {
+  console.error("❌ Firebase Admin init failed:", firebaseError);
+}
+
+const app = express();
+
+// CORS Configuration
+app.use(cors({
+  origin: "https://polite-sand-0dd94df1e.6.azurestaticapps.net", // Your frontend URL
+  credentials: true,
+  methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+// Middleware
+app.use(express.json());
+
+// Health check route
+app.get("/health", (req, res) => {
+  console.log("✅ Health check route hit");
+  res.status(200).send("OK");
+});
+
+// Root sanity check
+app.get("/", (req, res) => {
+  console.log("✅ Root route hit");
+  res.send("API is running");
+});
+
+// ROUTE IMPORTS
+try {
+  const authRoutes = require("./routes/auth");
+  const sellerRoutes = require("./routes/bseller");
+  const homeRoutes = require("./routes/bhome");
+  const headerRoutes = require("./routes/bheader");
+
+  app.use("/api/auth", authRoutes);
+  app.use("/api/seller", sellerRoutes);
+  app.use("/api/home", homeRoutes);
+  app.use("/api/header", headerRoutes);
+
+  console.log("✅ All routes mounted");
+} catch (err) {
+  console.error("❌ Failed to load routes:", err);
+}
+
+// 404 Fallback
+app.use((req, res) => {
+  console.warn("❗ Unmatched route:", req.method, req.originalUrl);
+  res.status(404).json({ message: "Not Found" });
+});
+
+// Start Server
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+
   
