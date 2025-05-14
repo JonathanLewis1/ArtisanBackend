@@ -38,6 +38,12 @@ try {
   console.error("❌ Error loading routes:", err);
 }
 
+app.get("/test-direct", (req, res) => {
+  console.log("🚀 /test-direct route hit!");
+  res.send("✅ Test route from server.js is working!");
+});
+
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
