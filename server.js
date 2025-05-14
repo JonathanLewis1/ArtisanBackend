@@ -43,6 +43,11 @@ app.get("/test-direct", (req, res) => {
   res.send("✅ Test route from server.js is working!");
 });
 
+app.get("/api/auth/test", (req, res) => {
+  res.json({ message: "✅ Route working directly from server.js" });
+});
+
+
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
