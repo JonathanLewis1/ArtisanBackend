@@ -29,7 +29,7 @@ app.get("/health", (req, res) => res.status(200).send("OK"));
 
 // Route loading
 try {
-  const authRoutes = require("./routes/auth.routes");
+  const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
   app.use("/api/home", require("./routes/bhome"));
   app.use("/api/seller", require("./routes/bseller"));
