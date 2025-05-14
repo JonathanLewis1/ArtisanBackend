@@ -29,7 +29,7 @@ app.get("/health", (req, res) => res.status(200).send("OK"));
 
 // Route loading
 try {
-  app.use("/api/auth", require("./routes/auth"));
+  app.use("/api/auth", require("./routes/auth.routes"));
   app.use("/api/home", require("./routes/bhome"));
   app.use("/api/seller", require("./routes/bseller"));
   app.use("/api/header", require("./routes/bheader"));
@@ -42,11 +42,6 @@ app.get("/test-direct", (req, res) => {
   console.log("🚀 /test-direct route hit!");
   res.send("✅ Test route from server.js is working!");
 });
-
-app.get("/api/auth/test", (req, res) => {
-  res.json({ message: "✅ Route working directly from server.js" });
-});
-
 
 
 const PORT = process.env.PORT || 8080;
