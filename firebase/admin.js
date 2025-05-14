@@ -1,35 +1,16 @@
-//    try{const admin = require("firebase-admin");
-//     // const serviceAccount = require("./serviceAccountKey.json");
-//     const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+const admin = require('firebase-admin');
 
-//     admin.initializeApp({
-//     credential: admin.credential.cert(serviceAccount),
-//     databaseURL: "https://sd2025law.firebaseio.com"
-//     });} 
-// catch (error) {
-//     console.error("Firebase init error:", error);
-//   }
-// const db = admin.firestore();
-// const auth = admin.auth();
+admin.initializeApp({
+  credential: admin.credential.cert({
+    projectId: process.env.FIREBASE_PROJECT_ID,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), // critical
+  }),
+  databaseURL: process.env.FIREBASE_DATABASE_URL,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+});
 
-// module.exports = { admin, db, auth };
-const admin = require("firebase-admin");
+const db = admin.firestore();
+const auth = admin.auth();
 
-try {
-  const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  console.log("🔍 Raw JSON loaded from env:", raw ? "✅ Yes" : "❌ No");
-
-  const serviceAccount = JSON.parse(raw);
-  console.log("🔑 Parsed client email:", serviceAccount.client_email);
-  console.log("🔑 Private key starts with:", serviceAccount.private_key?.substring(0, 30));
-
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: "https://sd2025law.firebaseio.com",
-  });
-  console.log("✅ Firebase Admin initialized successfully");
-} catch (error) {
-  console.error("❌ Firebase Admin init FAILED:", error);
-}
-
-
+module.exports = { admin, db, auth };

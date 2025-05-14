@@ -89,86 +89,32 @@
 // };
 
 // controllers/AuthController.js
-const firebaseClient = require("firebase/app");
-const { getAuth: getClientAuth, signInWithEmailAndPassword, sendEmailVerification } = require("firebase/auth");
-const { db, auth: adminAuth } = require("../firebase/admin");
-
-const firebaseConfig = {
-  apiKey: process.env.FIREBASE_API_KEY,
-  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-};
-
 exports.login = async (req, res) => {
   const { email, password } = req.body;
-
   try {
-    // Init client-side Firebase
+    console.log("📥 Login attempt for:", email);
     const clientApp = firebaseClient.initializeApp(firebaseConfig, `login-${Date.now()}`);
     const clientAuth = getClientAuth(clientApp);
-
-    // Sign in the user with email & password
     const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
     const user = userCredential.user;
 
-    // Check email verification
-    if (!user.emailVerified) {
-      return res.status(401).json({ message: "Email not verified" });
-    }
+    if (!user.emailVerified) return res.status(401).json({ message: "Email not verified" });
 
-    // Get ID token from the user
     const idToken = await user.getIdToken();
     const decodedToken = await adminAuth.verifyIdToken(idToken);
     const uid = decodedToken.uid;
 
-    // Fetch Firestore user document
     const docSnap = await db.collection("users").doc(uid).get();
-    if (!docSnap.exists) {
-      return res.status(404).json({ message: "User not found in database" });
-    }
+    if (!docSnap.exists) return res.status(404).json({ message: "User not found" });
 
     const { role } = docSnap.data();
-
-    // Return full object the frontend expects
-    return res.status(200).json({
-      idToken,
-      uid,
-      email: user.email,
-      role
-    });
+    return res.status(200).json({ idToken, uid, email: user.email, role });
 
   } catch (err) {
-    console.error("❌ Login failed:", err.message);
+    console.error("❌ Login failed:");
+    console.error("Message:", err.message);
+    console.error("Code:", err.code);
+    console.error("Full error:", err);
     return res.status(401).json({ message: "Invalid email or password" });
-  }
-};
-
-exports.signup = async (req, res) => {
-  const { firstName, lastName, email, password, role } = req.body;
-
-  try {
-    // Create the user using Admin SDK
-    const userRecord = await adminAuth.createUser({ email, password });
-    const uid = userRecord.uid;
-
-    // Save to Firestore
-    await db.collection("users").doc(uid).set({
-      firstName,
-      lastName,
-      email,
-      role,
-      createdAt: new Date().toISOString()
-    });
-
-    // Send verification email using client-side Firebase
-    const clientApp = firebaseClient.initializeApp(firebaseConfig, `signup-${Date.now()}`);
-    const clientAuth = getClientAuth(clientApp);
-    const userCredential = await signInWithEmailAndPassword(clientAuth, email, password);
-    await sendEmailVerification(userCredential.user);
-
-    return res.status(201).json({ message: "User created. Verification email sent." });
-
-  } catch (err) {
-    console.error("❌ Signup failed:", err.message);
-    return res.status(400).json({ message: err.message });
   }
 };
