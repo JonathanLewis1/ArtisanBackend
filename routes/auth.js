@@ -6,6 +6,9 @@
 // router.post("/signup", AuthController.signup);
 
 // module.exports = router;
+console.log("🧩 auth.js file loaded and routes registered");
+
+
 const express = require("express");
 const router = express.Router();
 const AuthController = require("../controllers/authController");
